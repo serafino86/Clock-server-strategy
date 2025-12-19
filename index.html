@@ -1,0 +1,1525 @@
+<!DOCTYPE html>
+
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎯 Battle Timer - Last War</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+font-family: ‘Segoe UI’, Arial, sans-serif;
+background: linear-gradient(135deg, #0b1020 0%, #1a2744 100%);
+color: #ffffff;
+padding: 10px;
+min-height: 100vh;
+}
+
+.container {
+max-width: 900px;
+margin: 0 auto;
+padding: 15px;
+}
+
+/* LANGUAGE SELECTOR */
+.language-selector {
+position: fixed;
+top: 20px;
+right: 20px;
+background: rgba(255,255,255,0.1);
+backdrop-filter: blur(10px);
+border-radius: 15px;
+padding: 15px 20px;
+display: flex;
+gap: 15px;
+z-index: 2000;
+border: 2px solid rgba(255,255,255,0.2);
+box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+}
+
+.lang-btn {
+background: none;
+border: none;
+cursor: pointer;
+font-size: 2em;
+transition: all 0.3s ease;
+filter: grayscale(100%);
+opacity: 0.5;
+}
+
+.lang-btn:hover {
+transform: scale(1.2);
+filter: grayscale(0%);
+opacity: 1;
+}
+
+.lang-btn.active {
+filter: grayscale(0%);
+opacity: 1;
+transform: scale(1.3);
+}
+
+.header {
+text-align: center;
+padding: 20px;
+background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%);
+border-radius: 15px;
+margin-bottom: 20px;
+margin-top: 80px;
+box-shadow: 0 5px 20px rgba(255, 68, 68, 0.4);
+}
+
+.header h1 {
+font-size: 2em;
+margin-bottom: 5px;
+text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+/* SETUP PANEL */
+.setup-panel {
+background: linear-gradient(135deg, #ffcc00 0%, #ff9900 100%);
+color: #1a1a2e;
+border-radius: 15px;
+padding: 25px;
+margin-bottom: 20px;
+box-shadow: 0 5px 20px rgba(255, 204, 0, 0.4);
+}
+
+.setup-panel h3 {
+font-size: 1.5em;
+margin-bottom: 20px;
+text-align: center;
+}
+
+/* MODE SELECTOR */
+.mode-selector {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 15px;
+margin-bottom: 30px;
+}
+
+.mode-btn {
+background: rgba(255,255,255,0.9);
+border: 3px solid transparent;
+padding: 30px 20px;
+border-radius: 12px;
+font-size: 1.3em;
+font-weight: bold;
+cursor: pointer;
+transition: all 0.3s ease;
+text-align: center;
+}
+
+.mode-btn:hover {
+transform: translateY(-3px);
+box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+}
+
+.mode-btn.selected {
+background: linear-gradient(135deg, #4ecdc4 0%, #44a3a0 100%);
+color: white;
+border-color: #fff;
+transform: scale(1.05);
+}
+
+.mode-icon {
+font-size: 2.5em;
+display: block;
+margin-bottom: 10px;
+}
+
+/* TIMEZONE GRID */
+.timezone-instructions {
+background: rgba(0,0,0,0.2);
+padding: 15px;
+border-radius: 10px;
+margin-bottom: 20px;
+font-size: 1.1em;
+text-align: center;
+}
+
+.timezone-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+gap: 12px;
+margin-bottom: 20px;
+}
+
+.timezone-btn {
+background: rgba(255,255,255,0.9);
+color: #1a1a2e;
+border: 3px solid transparent;
+padding: 15px 10px;
+border-radius: 12px;
+font-size: 1em;
+font-weight: bold;
+cursor: pointer;
+transition: all 0.3s ease;
+text-align: center;
+}
+
+.timezone-btn:hover {
+transform: translateY(-2px);
+box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.timezone-btn.selected {
+background: linear-gradient(135deg, #4ecdc4 0%, #44a3a0 100%);
+color: white;
+border-color: #fff;
+transform: scale(1.05);
+}
+
+.timezone-emoji {
+font-size: 1.8em;
+display: block;
+margin-bottom: 5px;
+}
+
+.timezone-name {
+font-size: 0.9em;
+display: block;
+margin-bottom: 3px;
+}
+
+.timezone-offset {
+font-size: 0.75em;
+opacity: 0.8;
+display: block;
+}
+
+.confirm-btn {
+background: linear-gradient(135deg, #4ecdc4 0%, #44a3a0 100%);
+color: white;
+border: none;
+padding: 20px 40px;
+border-radius: 12px;
+font-size: 1.4em;
+font-weight: bold;
+cursor: pointer;
+width: 100%;
+transition: all 0.3s ease;
+}
+
+.confirm-btn:hover {
+transform: translateY(-2px);
+box-shadow: 0 8px 25px rgba(78, 205, 196, 0.5);
+}
+
+.confirm-btn:disabled {
+opacity: 0.5;
+cursor: not-allowed;
+}
+
+/* CLOCKS */
+.clocks-display {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 15px;
+margin-bottom: 20px;
+}
+
+.clock-box {
+background: rgba(255,255,255,0.05);
+border-radius: 10px;
+padding: 20px;
+text-align: center;
+border: 2px solid rgba(255,255,255,0.1);
+}
+
+.clock-box.server {
+border-color: #ff4444;
+box-shadow: 0 0 20px rgba(255, 68, 68, 0.3);
+}
+
+.clock-label {
+font-size: 0.9em;
+opacity: 0.8;
+margin-bottom: 8px;
+text-transform: uppercase;
+letter-spacing: 1px;
+}
+
+.clock-time {
+font-size: 2.2em;
+font-weight: bold;
+font-family: ‘Courier New’, monospace;
+color: #ffcc00;
+}
+
+.clock-box.server .clock-time {
+color: #ff4444;
+}
+
+/* TRAINING MODE CONTROLS */
+.training-controls {
+background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+border-radius: 15px;
+padding: 20px;
+margin-bottom: 20px;
+text-align: center;
+}
+
+.training-title {
+font-size: 1.3em;
+margin-bottom: 15px;
+text-transform: uppercase;
+letter-spacing: 2px;
+}
+
+.training-buttons {
+display: flex;
+gap: 10px;
+justify-content: center;
+flex-wrap: wrap;
+}
+
+.training-btn {
+background: rgba(255,255,255,0.2);
+border: 2px solid rgba(255,255,255,0.5);
+color: white;
+padding: 15px 25px;
+border-radius: 10px;
+font-size: 1.1em;
+font-weight: bold;
+cursor: pointer;
+transition: all 0.3s ease;
+display: flex;
+align-items: center;
+gap: 8px;
+}
+
+.training-btn:hover {
+background: rgba(255,255,255,0.3);
+transform: translateY(-2px);
+}
+
+.training-btn:active {
+transform: scale(0.95);
+}
+
+.training-btn.prev {
+background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+}
+
+.training-btn.next {
+background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+}
+
+.training-btn.reset {
+background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+}
+
+/* COUNTDOWN */
+.countdown-box {
+background: linear-gradient(135deg, #2d3561 0%, #1a2140 100%);
+border: 3px solid #ffcc00;
+border-radius: 15px;
+padding: 25px;
+margin-bottom: 20px;
+text-align: center;
+box-shadow: 0 5px 20px rgba(255, 204, 0, 0.3);
+}
+
+.countdown-label {
+font-size: 1.1em;
+opacity: 0.8;
+margin-bottom: 10px;
+text-transform: uppercase;
+letter-spacing: 2px;
+}
+
+.countdown-display {
+font-size: 3.5em;
+font-weight: bold;
+font-family: ‘Courier New’, monospace;
+color: #ffcc00;
+text-shadow: 0 0 20px rgba(255, 204, 0, 0.5);
+letter-spacing: 3px;
+}
+
+.countdown-display.urgent {
+color: #ff4444;
+animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+0%, 100% { transform: scale(1); }
+50% { transform: scale(1.05); }
+}
+
+/* FASE */
+.phase-box {
+border: 3px solid #ff4444;
+border-radius: 15px;
+padding: 25px;
+margin-bottom: 20px;
+background: linear-gradient(135deg, #1a2140 0%, #0f1628 100%);
+box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+}
+
+.phase-box.phase-0 { border-color: #ffcc00; }
+.phase-box.phase-1 { border-color: #ff4444; }
+.phase-box.phase-2 { border-color: #4ecdc4; }
+.phase-box.phase-3 { border-color: #fd79a8; }
+.phase-box.phase-4 { border-color: #a29bfe; }
+.phase-box.phase-5 { border-color: #4ecdc4; }
+
+.phase-box h2 {
+font-size: 1.8em;
+color: #ffcc00;
+margin-bottom: 15px;
+text-transform: uppercase;
+}
+
+.phase-message {
+font-size: 1.2em;
+line-height: 1.6;
+white-space: pre-line;
+}
+
+/* CANNONE */
+.cannon-display {
+font-size: 4em;
+font-weight: bold;
+text-align: center;
+padding: 30px;
+border-radius: 15px;
+margin-bottom: 20px;
+box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+transition: all 0.3s ease;
+}
+
+.cannon-display.prep { background: linear-gradient(135deg, #ffcc00 0%, #f6b93b 100%); color: #1a1a2e; }
+.cannon-display.nord { background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%); color: #fff; }
+.cannon-display.est { background: linear-gradient(135deg, #4ecdc4 0%, #44a3a0 100%); color: #fff; }
+.cannon-display.sud { background: linear-gradient(135deg, #fd79a8 0%, #e84393 100%); color: #fff; }
+.cannon-display.ovest { background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%); color: #fff; }
+.cannon-display.finale { background: linear-gradient(135deg, #4ecdc4 0%, #44a3a0 100%); color: #fff; }
+
+/* MAPPA */
+.battlefield-mini {
+position: relative;
+width: 100%;
+max-width: 400px;
+height: 400px;
+margin: 20px auto;
+background:
+radial-gradient(circle at center, rgba(78,205,196,0.15) 0%, transparent 60%),
+linear-gradient(135deg, #2d4a3e 0%, #1a2f23 100%);
+border: 3px solid #ff6b6b;
+border-radius: 15px;
+box-shadow: inset 0 0 30px rgba(0,0,0,0.6), 0 0 20px rgba(255,107,107,0.4);
+}
+
+.mini-cannon {
+position: absolute;
+width: 80px;
+height: 80px;
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 2em;
+font-weight: bold;
+border: 3px solid #fff;
+transition: all 0.3s ease;
+opacity: 0.5;
+}
+
+.mini-cannon.active {
+opacity: 1;
+transform: scale(1.2);
+box-shadow: 0 0 30px rgba(255,204,0,1);
+border-color: #ffcc00;
+animation: glow 1.5s infinite;
+}
+
+@keyframes glow {
+0%, 100% { box-shadow: 0 0 30px rgba(255,204,0,1); }
+50% { box-shadow: 0 0 50px rgba(255,204,0,1); }
+}
+
+.mini-cannon.completed {
+opacity: 1;
+border-color: #4ecdc4;
+}
+
+.mini-cannon.completed::after {
+content: ‘✓’;
+position: absolute;
+top: -10px;
+right: -10px;
+background: #4ecdc4;
+width: 30px;
+height: 30px;
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 0.7em;
+border: 2px solid #fff;
+}
+
+#mini1 { top: 30px; left: 30px; background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%); }
+#mini2 { top: 30px; right: 30px; background: linear-gradient(135deg, #4ecdc4 0%, #44a3a0 100%); }
+#mini3 { bottom: 30px; right: 30px; background: linear-gradient(135deg, #fd79a8 0%, #e84393 100%); }
+#mini4 { bottom: 30px; left: 30px; background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%); }
+
+.mini-capitol {
+position: absolute;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+width: 60px;
+height: 60px;
+background: linear-gradient(135deg, #ffd93d 0%, #f6b93b 100%);
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 2em;
+border: 3px solid #fff;
+box-shadow: 0 0 20px rgba(255,217,61,0.8);
+}
+
+/* PROGRESS */
+.progress-container {
+width: 100%;
+height: 30px;
+background: rgba(255,255,255,0.1);
+border-radius: 15px;
+overflow: hidden;
+margin-bottom: 20px;
+}
+
+.progress-bar {
+height: 100%;
+background: linear-gradient(90deg, #ffcc00 0%, #ff4444 100%);
+transition: width 1s linear;
+display: flex;
+align-items: center;
+justify-content: flex-end;
+padding-right: 10px;
+font-weight: bold;
+font-size: 0.9em;
+}
+
+/* NOTIFICHE */
+.notification-box {
+text-align: center;
+padding: 15px;
+background: rgba(255,255,255,0.05);
+border-radius: 10px;
+margin-bottom: 20px;
+}
+
+.enable-notifications-btn {
+background: linear-gradient(135deg, #4ecdc4 0%, #44a3a0 100%);
+color: white;
+border: none;
+padding: 15px 30px;
+border-radius: 10px;
+font-size: 1.1em;
+font-weight: bold;
+cursor: pointer;
+transition: all 0.3s ease;
+}
+
+.enable-notifications-btn:hover {
+transform: translateY(-2px);
+box-shadow: 0 5px 20px rgba(78, 205, 196, 0.5);
+}
+
+.notification-enabled {
+color: #4ecdc4;
+font-weight: bold;
+}
+
+/* HIDDEN */
+.hidden {
+display: none !important;
+}
+
+/* FOOTER */
+.footer {
+text-align: center;
+opacity: 0.6;
+font-size: 0.9em;
+margin-top: 30px;
+padding: 20px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+.language-selector {
+top: 10px;
+right: 10px;
+padding: 10px 15px;
+gap: 10px;
+}
+.lang-btn { font-size: 1.5em; }
+.header { margin-top: 70px; }
+.header h1 { font-size: 1.5em; }
+.mode-selector { grid-template-columns: 1fr; }
+.timezone-grid { grid-template-columns: 1fr 1fr; }
+.clocks-display { grid-template-columns: 1fr; }
+.countdown-display { font-size: 2.5em; }
+.cannon-display { font-size: 3em; padding: 20px; }
+.battlefield-mini { width: 300px; height: 300px; }
+.mini-cannon { width: 60px; height: 60px; font-size: 1.5em; }
+#mini1, #mini2 { top: 20px; }
+#mini1, #mini4 { left: 20px; }
+#mini2, #mini3 { right: 20px; }
+#mini3, #mini4 { bottom: 20px; }
+.mini-capitol { width: 50px; height: 50px; font-size: 1.5em; }
+.training-buttons { flex-direction: column; }
+.training-btn { width: 100%; justify-content: center; }
+}
+
+@media print {
+.language-selector, .notification-box, .training-controls { display: none; }
+}
+</style>
+
+</head>
+<body>
+<div class="container">
+  <!-- LANGUAGE SELECTOR -->
+  <div class="language-selector">
+    <button class="lang-btn active" data-lang="it" title="Italiano">🇮🇹</button>
+    <button class="lang-btn" data-lang="en" title="English">🇬🇧</button>
+    <button class="lang-btn" data-lang="fr" title="Français">🇫🇷</button>
+    <button class="lang-btn" data-lang="de" title="Deutsch">🇩🇪</button>
+  </div>
+
+  <!-- HEADER -->
+
+  <div class="header">
+    <h1 id="headerTitle">🎯 BATTLE COMMAND TIMER</h1>
+    <div class="subtitle" id="headerSubtitle">Last War: Survival - Server vs Server</div>
+  </div>
+
+  <!-- SETUP PANEL -->
+
+  <div class="setup-panel" id="setupPanel">
+    <h3 id="setupTitle">⚙️ CONFIGURAZIONE TIMER</h3>
+
+```
+<!-- MODE SELECTOR -->
+<div class="mode-selector">
+  <button class="mode-btn" data-mode="live">
+    <span class="mode-icon">⚔️</span>
+    <span class="mode-label-live">MODALITÀ LIVE</span>
+  </button>
+  <button class="mode-btn" data-mode="training">
+    <span class="mode-icon">🎓</span>
+    <span class="mode-label-training">ESERCITAZIONE</span>
+  </button>
+</div>
+
+<!-- TIMEZONE SELECTOR -->
+<div class="timezone-instructions" id="timezoneInstructions">
+  <strong>🌍 Dove ti trovi?</strong><br>
+  Seleziona la tua zona geografica
+</div>
+
+<div class="timezone-grid">
+  <button class="timezone-btn" data-offset="0" data-name-it="Portogallo" data-name-en="Portugal" data-name-fr="Portugal" data-name-de="Portugal">
+    <span class="timezone-emoji">🇵🇹</span>
+    <span class="timezone-name">Portogallo</span>
+    <span class="timezone-offset">UTC+0</span>
+  </button>
+  
+  <button class="timezone-btn" data-offset="0" data-name-it="UK" data-name-en="UK" data-name-fr="Royaume-Uni" data-name-de="UK">
+    <span class="timezone-emoji">🇬🇧</span>
+    <span class="timezone-name">UK / Ireland</span>
+    <span class="timezone-offset">UTC+0</span>
+  </button>
+  
+  <button class="timezone-btn" data-offset="+1" data-name-it="Europa Centrale" data-name-en="Central Europe" data-name-fr="Europe Centrale" data-name-de="Mitteleuropa">
+    <span class="timezone-emoji">🇮🇹🇨🇭🇩🇪</span>
+    <span class="timezone-name">Europa Centrale</span>
+    <span class="timezone-offset">UTC+1 (CET)</span>
+  </button>
+  
+  <button class="timezone-btn" data-offset="+2" data-name-it="Europa Est" data-name-en="Eastern Europe" data-name-fr="Europe de l'Est" data-name-de="Osteuropa">
+    <span class="timezone-emoji">🇬🇷🇷🇴🇫🇮</span>
+    <span class="timezone-name">Europa Orientale</span>
+    <span class="timezone-offset">UTC+2</span>
+  </button>
+  
+  <button class="timezone-btn" data-offset="+3" data-name-it="Turchia" data-name-en="Turkey" data-name-fr="Turquie" data-name-de="Türkei">
+    <span class="timezone-emoji">🇹🇷🇷🇺</span>
+    <span class="timezone-name">Turchia / Russia</span>
+    <span class="timezone-offset">UTC+3</span>
+  </button>
+</div>
+
+<button class="confirm-btn" id="confirmBtn" disabled>
+  <span id="confirmBtnText">✅ AVVIA TIMER</span>
+</button>
+```
+
+  </div>
+
+  <!-- MAIN CONTENT -->
+
+  <div id="mainContent" class="hidden">
+    <!-- OROLOGI -->
+    <div class="clocks-display">
+      <div class="clock-box">
+        <div class="clock-label" id="yourTimeLabel">🕐 IL TUO ORARIO</div>
+        <div class="clock-time" id="localTime">--:--:--</div>
+      </div>
+      <div class="clock-box server">
+        <div class="clock-label" id="serverTimeLabel">🎮 ORARIO SERVER</div>
+        <div class="clock-time" id="serverTime">12:--:--</div>
+      </div>
+    </div>
+
+```
+<!-- TRAINING CONTROLS -->
+<div class="training-controls hidden" id="trainingControls">
+  <div class="training-title" id="trainingTitle">🎓 CONTROLLI ESERCITAZIONE</div>
+  <div class="training-buttons">
+    <button class="training-btn prev" id="prevPhaseBtn">
+      <span>⬅️</span> <span id="prevPhaseText">FASE PRECEDENTE</span>
+    </button>
+    <button class="training-btn reset" id="resetTrainingBtn">
+      <span>🔄</span> <span id="resetText">RESET</span>
+    </button>
+    <button class="training-btn next" id="nextPhaseBtn">
+      <span id="nextPhaseText">FASE SUCCESSIVA</span> <span>➡️</span>
+    </button>
+  </div>
+</div>
+
+<!-- NOTIFICHE -->
+<div class="notification-box" id="notificationBox">
+  <button class="enable-notifications-btn" id="enableNotifications">
+    <span id="notifyBtnText">🔔 Attiva Notifiche</span>
+  </button>
+</div>
+
+<!-- COUNTDOWN -->
+<div class="countdown-box">
+  <div class="countdown-label" id="countdownLabel">⏳ INIZIO GUERRA TRA:</div>
+  <div class="countdown-display" id="countdownDisplay">--:--:--</div>
+</div>
+
+<!-- PROGRESS -->
+<div class="progress-container">
+  <div class="progress-bar" id="progressBar">0%</div>
+</div>
+
+<!-- FASE -->
+<div class="phase-box" id="phaseBox">
+  <h2 id="phaseTitle">In attesa...</h2>
+  <p class="phase-message" id="phaseMessage">Seleziona modalità e fuso orario per iniziare.</p>
+</div>
+
+<!-- CANNONE -->
+<div class="cannon-display prep" id="cannonDisplay">—</div>
+
+<!-- MAPPA -->
+<div class="battlefield-mini">
+  <div class="mini-capitol">🏛️</div>
+  <div class="mini-cannon" id="mini1">1</div>
+  <div class="mini-cannon" id="mini2">2</div>
+  <div class="mini-cannon" id="mini3">3</div>
+  <div class="mini-cannon" id="mini4">4</div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div id="footerText1">Timer sincronizzato con Server Time (sempre 12:00)</div>
+  <div style="margin-top: 10px; color: #4ecdc4;" id="timezoneInfo"></div>
+</div>
+```
+
+  </div>
+</div>
+
+<script>
+/***********************
+ * TRANSLATIONS
+ ************************/
+const TRANSLATIONS = {
+  it: {
+    headerTitle: '🎯 BATTLE COMMAND TIMER',
+    headerSubtitle: 'Last War: Survival - Server vs Server',
+    setupTitle: '⚙️ CONFIGURAZIONE TIMER',
+    modeLive: 'MODALITÀ LIVE',
+    modeTraining: 'ESERCITAZIONE',
+    timezoneInstructions: '<strong>🌍 Dove ti trovi?</strong><br>Seleziona la tua zona geografica',
+    confirmBtn: '✅ AVVIA TIMER',
+    yourTimeLabel: '🕐 IL TUO ORARIO',
+    serverTimeLabel: '🎮 ORARIO SERVER',
+    trainingTitle: '🎓 CONTROLLI ESERCITAZIONE',
+    prevPhase: 'FASE PRECEDENTE',
+    nextPhase: 'FASE SUCCESSIVA',
+    reset: 'RESET',
+    notifyBtn: '🔔 Attiva Notifiche',
+    notifyEnabled: '✅ Notifiche attive!',
+    countdownBefore: '⏳ INIZIO GUERRA TRA:',
+    countdownDuring: '⚔️ GUERRA IN CORSO:',
+    countdownAfter: '🏆 GUERRA TERMINATA',
+    countdownManual: 'MANUALE',
+    victory: 'VITTORIA!',
+    footerText: 'Timer sincronizzato con Server Time (sempre 12:00)',
+    modeInfo: 'Modalità',
+    modeLiveText: 'LIVE ⚔️',
+    modeTrainingText: 'ESERCITAZIONE 🎓',
+    trainingMode: '🎓 MODALITÀ ESERCITAZIONE',
+    phases: {
+      0: {
+        title: 'FASE 0 – PREPARAZIONE',
+        cannon: 'PREPARAZIONE',
+        message: `🎯 Preparazione generale
+🗡️ Ariete: Pronti vicino a NORD
+🛡️ Muro: In posizione di attesa
+🔨 Martello: Inizia posizionamento
+
+⚠️ NESSUN ATTACCO prima delle 12:00 server!`
+      },
+      1: {
+        title: 'FASE 1 – CANNONE NORD',
+        cannon: '1 NORD',
+        message: `🎯 ATTACCARE CANNONE NORD!
+
+🗡️ Ariete (TUTTE alleanze): Rally 5-8
+🛡️ Muro NGC-NS1: Prepararsi
+🔨 Martello: Scout spam
+
+📍 Non assegnati: T1 CAMPIDOGLIO`
+      },
+      2: {
+        title: 'FASE 2 – CANNONE EST',
+        cannon: '2 EST',
+        message: `🎯 ATTACCARE CANNONE EST!
+
+🗡️ Ariete: Nord → Est
+🛡️ Muro UP4-GLDY: Prepararsi
+🛡️ NGC-NS1: Difesa Nord
+
+📍 Non assegnati: T1 CAMPIDOGLIO`
+      },
+      3: {
+        title: 'FASE 3 – CANNONE SUD',
+        cannon: '3 SUD',
+        message: `🎯 ATTACCARE CANNONE SUD!
+
+🗡️ Ariete: Est → Sud
+🛡️ Muro DJN-FmLy-BwF: Prepararsi
+⚠️ Possibile resistenza!
+
+📍 Non assegnati: T1 CAMPIDOGLIO`
+      },
+      4: {
+        title: 'FASE 4 – CANNONE OVEST',
+        cannon: '4 OVEST',
+        message: `🎯 ATTACCARE CANNONE OVEST!
+
+🗡️ Ariete: Sud → Ovest (ULTIMO!)
+🛡️ Muro VNEM-LdKy: Prepararsi
+🏆 Dopo: Ariete torna alle aree!
+
+📍 Non assegnati: T1 CAMPIDOGLIO`
+      },
+      5: {
+        title: 'FASE 5 – DIFESA TOTALE',
+        cannon: 'DIFESA',
+        message: `🛡️ TUTTI I CANNONI CONTROLLATI!
+
+🗡️ Ariete: Rinforzi aree
+🛡️ Muro: Difesa MASSIMA
+🔨 Martello: INTENSIFICA
+🏛️ Campidoglio: Priorità
+
+🏆 Tenere fino a 30 min!`
+      }
+    }
+  },
+  en: {
+    headerTitle: '🎯 BATTLE COMMAND TIMER',
+    headerSubtitle: 'Last War: Survival - Server vs Server',
+    setupTitle: '⚙️ TIMER CONFIGURATION',
+    modeLive: 'LIVE MODE',
+    modeTraining: 'TRAINING',
+    timezoneInstructions: '<strong>🌍 Where are you?</strong><br>Select your geographic zone',
+    confirmBtn: '✅ START TIMER',
+    yourTimeLabel: '🕐 YOUR TIME',
+    serverTimeLabel: '🎮 SERVER TIME',
+    trainingTitle: '🎓 TRAINING CONTROLS',
+    prevPhase: 'PREVIOUS PHASE',
+    nextPhase: 'NEXT PHASE',
+    reset: 'RESET',
+    notifyBtn: '🔔 Enable Notifications',
+    notifyEnabled: '✅ Notifications active!',
+    countdownBefore: '⏳ WAR STARTS IN:',
+    countdownDuring: '⚔️ WAR IN PROGRESS:',
+    countdownAfter: '🏆 WAR ENDED',
+    countdownManual: 'MANUAL',
+    victory: 'VICTORY!',
+    footerText: 'Timer synchronized with Server Time (always 12:00)',
+    modeInfo: 'Mode',
+    modeLiveText: 'LIVE ⚔️',
+    modeTrainingText: 'TRAINING 🎓',
+    trainingMode: '🎓 TRAINING MODE',
+    phases: {
+      0: {
+        title: 'PHASE 0 – PREPARATION',
+        cannon: 'PREPARATION',
+        message: `🎯 General preparation
+🗡️ Spearhead: Ready near NORTH
+🛡️ Wall: In standby position
+🔨 Hammer: Begin positioning
+
+⚠️ NO ATTACK before 12:00 server!`
+      },
+      1: {
+        title: 'PHASE 1 – NORTH CANNON',
+        cannon: '1 NORTH',
+        message: `🎯 ATTACK NORTH CANNON!
+
+🗡️ Spearhead (ALL alliances): Rally 5-8
+🛡️ Wall NGC-NS1: Get ready
+🔨 Hammer: Scout spam
+
+📍 Unassigned: T1 CAPITOL`
+      },
+      2: {
+        title: 'PHASE 2 – EAST CANNON',
+        cannon: '2 EAST',
+        message: `🎯 ATTACK EAST CANNON!
+
+🗡️ Spearhead: North → East
+🛡️ Wall UP4-GLDY: Get ready
+🛡️ NGC-NS1: Defend North
+
+📍 Unassigned: T1 CAPITOL`
+      },
+      3: {
+        title: 'PHASE 3 – SOUTH CANNON',
+        cannon: '3 SOUTH',
+        message: `🎯 ATTACK SOUTH CANNON!
+
+🗡️ Spearhead: East → South
+🛡️ Wall DJN-FmLy-BwF: Get ready
+⚠️ Possible resistance!
+
+📍 Unassigned: T1 CAPITOL`
+      },
+      4: {
+        title: 'PHASE 4 – WEST CANNON',
+        cannon: '4 WEST',
+        message: `🎯 ATTACK WEST CANNON!
+
+🗡️ Spearhead: South → West (FINAL!)
+🛡️ Wall VNEM-LdKy: Get ready
+🏆 After: Spearhead returns to zones!
+
+📍 Unassigned: T1 CAPITOL`
+      },
+      5: {
+        title: 'PHASE 5 – TOTAL DEFENSE',
+        cannon: 'DEFENSE',
+        message: `🛡️ ALL CANNONS CONTROLLED!
+
+🗡️ Spearhead: Reinforce zones
+🛡️ Wall: MAXIMUM defense
+🔨 Hammer: INTENSIFY
+🏛️ Capitol: Priority
+
+🏆 Hold until 30 min!`
+      }
+    }
+  },
+  fr: {
+    headerTitle: '🎯 CHRONOMÈTRE DE BATAILLE',
+    headerSubtitle: 'Last War: Survival - Serveur vs Serveur',
+    setupTitle: '⚙️ CONFIGURATION DU CHRONOMÈTRE',
+    modeLive: 'MODE EN DIRECT',
+    modeTraining: 'ENTRAÎNEMENT',
+    timezoneInstructions: '<strong>🌍 Où êtes-vous?</strong><br>Sélectionnez votre zone géographique',
+    confirmBtn: '✅ DÉMARRER LE CHRONOMÈTRE',
+    yourTimeLabel: '🕐 VOTRE HEURE',
+    serverTimeLabel: '🎮 HEURE SERVEUR',
+    trainingTitle: '🎓 CONTRÔLES D\'ENTRAÎNEMENT',
+    prevPhase: 'PHASE PRÉCÉDENTE',
+    nextPhase: 'PHASE SUIVANTE',
+    reset: 'RÉINITIALISER',
+    notifyBtn: '🔔 Activer les Notifications',
+    notifyEnabled: '✅ Notifications actives!',
+    countdownBefore: '⏳ DÉBUT DE GUERRE DANS:',
+    countdownDuring: '⚔️ GUERRE EN COURS:',
+    countdownAfter: '🏆 GUERRE TERMINÉE',
+    countdownManual: 'MANUEL',
+    victory: 'VICTOIRE!',
+    footerText: 'Chronomètre synchronisé avec l\'heure serveur (toujours 12:00)',
+    modeInfo: 'Mode',
+    modeLiveText: 'EN DIRECT ⚔️',
+    modeTrainingText: 'ENTRAÎNEMENT 🎓',
+    trainingMode: '🎓 MODE ENTRAÎNEMENT',
+    phases: {
+      0: {
+        title: 'PHASE 0 – PRÉPARATION',
+        cannon: 'PRÉPARATION',
+        message: `🎯 Préparation générale
+🗡️ Bélier: Prêt près du NORD
+🛡️ Rempart: En position d'attente
+🔨 Marteau: Commencer le positionnement
+
+⚠️ AUCUNE ATTAQUE avant 12:00 serveur!`
+      },
+      1: {
+        title: 'PHASE 1 – CANON NORD',
+        cannon: '1 NORD',
+        message: `🎯 ATTAQUER CANON NORD!
+
+🗡️ Bélier (TOUTES alliances): Rally 5-8
+🛡️ Rempart NGC-NS1: Se préparer
+🔨 Marteau: Scout spam
+
+📍 Non assignés: T1 CAPITOLE`
+      },
+      2: {
+        title: 'PHASE 2 – CANON EST',
+        cannon: '2 EST',
+        message: `🎯 ATTAQUER CANON EST!
+
+🗡️ Bélier: Nord → Est
+🛡️ Rempart UP4-GLDY: Se préparer
+🛡️ NGC-NS1: Défendre Nord
+
+📍 Non assignés: T1 CAPITOLE`
+      },
+      3: {
+        title: 'PHASE 3 – CANON SUD',
+        cannon: '3 SUD',
+        message: `🎯 ATTAQUER CANON SUD!
+
+🗡️ Bélier: Est → Sud
+🛡️ Rempart DJN-FmLy-BwF: Se préparer
+⚠️ Résistance possible!
+
+📍 Non assignés: T1 CAPITOLE`
+      },
+      4: {
+        title: 'PHASE 4 – CANON OUEST',
+        cannon: '4 OUEST',
+        message: `🎯 ATTAQUER CANON OUEST!
+
+🗡️ Bélier: Sud → Ouest (FINAL!)
+🛡️ Rempart VNEM-LdKy: Se préparer
+🏆 Après: Bélier retourne aux zones!
+
+📍 Non assignés: T1 CAPITOLE`
+      },
+      5: {
+        title: 'PHASE 5 – DÉFENSE TOTALE',
+        cannon: 'DÉFENSE',
+        message: `🛡️ TOUS LES CANONS CONTRÔLÉS!
+
+🗡️ Bélier: Renforcer zones
+🛡️ Rempart: Défense MAXIMALE
+🔨 Marteau: INTENSIFIER
+🏛️ Capitole: Priorité
+
+🏆 Tenir jusqu'à 30 min!`
+      }
+    }
+  },
+  de: {
+    headerTitle: '🎯 SCHLACHT-ZEITMESSER',
+    headerSubtitle: 'Last War: Survival - Server gegen Server',
+    setupTitle: '⚙️ ZEITMESSER-KONFIGURATION',
+    modeLive: 'LIVE-MODUS',
+    modeTraining: 'ÜBUNG',
+    timezoneInstructions: '<strong>🌍 Wo bist du?</strong><br>Wähle deine geografische Zone',
+    confirmBtn: '✅ ZEITMESSER STARTEN',
+    yourTimeLabel: '🕐 DEINE ZEIT',
+    serverTimeLabel: '🎮 SERVER-ZEIT',
+    trainingTitle: '🎓 ÜBUNGSSTEUERUNG',
+    prevPhase: 'VORHERIGE PHASE',
+    nextPhase: 'NÄCHSTE PHASE',
+    reset: 'ZURÜCKSETZEN',
+    notifyBtn: '🔔 Benachrichtigungen aktivieren',
+    notifyEnabled: '✅ Benachrichtigungen aktiv!',
+    countdownBefore: '⏳ KRIEGSBEGINN IN:',
+    countdownDuring: '⚔️ KRIEG LÄUFT:',
+    countdownAfter: '🏆 KRIEG BEENDET',
+    countdownManual: 'MANUELL',
+    victory: 'SIEG!',
+    footerText: 'Zeitmesser synchronisiert mit Server-Zeit (immer 12:00)',
+    modeInfo: 'Modus',
+    modeLiveText: 'LIVE ⚔️',
+    modeTrainingText: 'ÜBUNG 🎓',
+    trainingMode: '🎓 ÜBUNGSMODUS',
+    phases: {
+      0: {
+        title: 'PHASE 0 – VORBEREITUNG',
+        cannon: 'VORBEREITUNG',
+        message: `🎯 Allgemeine Vorbereitung
+🗡️ Rammbock: Bereit bei NORD
+🛡️ Mauer: In Bereitschaftsposition
+🔨 Hammer: Positionierung beginnen
+
+⚠️ KEIN ANGRIFF vor 12:00 Server!`
+      },
+      1: {
+        title: 'PHASE 1 – NORDKANONE',
+        cannon: '1 NORD',
+        message: `🎯 NORDKANONE ANGREIFEN!
+
+🗡️ Rammbock (ALLE Allianzen): Rally 5-8
+🛡️ Mauer NGC-NS1: Vorbereiten
+🔨 Hammer: Scout-Spam
+
+📍 Nicht zugewiesen: T1 KAPITOL`
+      },
+      2: {
+        title: 'PHASE 2 – OSTKANONE',
+        cannon: '2 OST',
+        message: `🎯 OSTKANONE ANGREIFEN!
+
+🗡️ Rammbock: Nord → Ost
+🛡️ Mauer UP4-GLDY: Vorbereiten
+🛡️ NGC-NS1: Nord verteidigen
+
+📍 Nicht zugewiesen: T1 KAPITOL`
+      },
+      3: {
+        title: 'PHASE 3 – SÜDKANONE',
+        cannon: '3 SÜD',
+        message: `🎯 SÜDKANONE ANGREIFEN!
+
+🗡️ Rammbock: Ost → Süd
+🛡️ Mauer DJN-FmLy-BwF: Vorbereiten
+⚠️ Möglicher Widerstand!
+
+📍 Nicht zugewiesen: T1 KAPITOL`
+      },
+      4: {
+        title: 'PHASE 4 – WESTKANONE',
+        cannon: '4 WEST',
+        message: `🎯 WESTKANONE ANGREIFEN!
+
+🗡️ Rammbock: Süd → West (FINAL!)
+🛡️ Mauer VNEM-LdKy: Vorbereiten
+🏆 Danach: Rammbock zurück zu Zonen!
+
+📍 Nicht zugewiesen: T1 KAPITOL`
+      },
+      5: {
+        title: 'PHASE 5 – TOTALE VERTEIDIGUNG',
+        cannon: 'VERTEIDIGUNG',
+        message: `🛡️ ALLE KANONEN KONTROLLIERT!
+
+🗡️ Rammbock: Zonen verstärken
+🛡️ Mauer: MAXIMALE Verteidigung
+🔨 Hammer: INTENSIVIEREN
+🏛️ Kapitol: Priorität
+
+🏆 Halten bis 30 Min!`
+      }
+    }
+  }
+};
+
+/***********************
+ * CONFIG
+ ************************/
+const WAR_START_SERVER_HOUR = 12;
+const WAR_START_SERVER_MIN = 0;
+
+/***********************
+ * GLOBAL VARS
+ ************************/
+let currentLang = 'it';
+let selectedMode = null;
+let userTimezoneOffset = null;
+let timerStarted = false;
+let notificationsEnabled = false;
+let lastPhaseId = -1;
+let audioContext = null;
+let trainingPhaseIndex = 0;
+
+/***********************
+ * LANGUAGE SYSTEM
+ ************************/
+function updateLanguage(lang) {
+  currentLang = lang;
+  localStorage.setItem('lastWarLang', lang);
+  
+  const t = TRANSLATIONS[lang];
+  
+  // Header
+  document.getElementById('headerTitle').textContent = t.headerTitle;
+  document.getElementById('headerSubtitle').textContent = t.headerSubtitle;
+  
+  // Setup
+  document.getElementById('setupTitle').textContent = t.setupTitle;
+  document.querySelector('.mode-label-live').textContent = t.modeLive;
+  document.querySelector('.mode-label-training').textContent = t.modeTraining;
+  document.getElementById('timezoneInstructions').innerHTML = t.timezoneInstructions;
+  document.getElementById('confirmBtnText').textContent = t.confirmBtn;
+  
+  // Main content
+  document.getElementById('yourTimeLabel').textContent = t.yourTimeLabel;
+  document.getElementById('serverTimeLabel').textContent = t.serverTimeLabel;
+  document.getElementById('trainingTitle').textContent = t.trainingTitle;
+  document.getElementById('prevPhaseText').textContent = t.prevPhase;
+  document.getElementById('nextPhaseText').textContent = t.nextPhase;
+  document.getElementById('resetText').textContent = t.reset;
+  document.getElementById('notifyBtnText').textContent = t.notifyBtn;
+  document.getElementById('footerText1').textContent = t.footerText;
+  
+  // Update phase if active
+  if (timerStarted) {
+    updatePhaseUI();
+  }
+}
+
+document.querySelectorAll('.lang-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    updateLanguage(this.dataset.lang);
+  });
+});
+
+// Load saved language
+const savedLang = localStorage.getItem('lastWarLang');
+if (savedLang && savedLang !== 'it') {
+  document.querySelector(`[data-lang="${savedLang}"]`).click();
+}
+
+/***********************
+ * SETUP
+ ************************/
+document.querySelectorAll('.mode-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('selected'));
+    this.classList.add('selected');
+    selectedMode = this.dataset.mode;
+    checkCanConfirm();
+  });
+});
+
+document.querySelectorAll('.timezone-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.timezone-btn').forEach(b => b.classList.remove('selected'));
+    this.classList.add('selected');
+    userTimezoneOffset = parseInt(this.dataset.offset);
+    checkCanConfirm();
+  });
+});
+
+function checkCanConfirm() {
+  const can = selectedMode !== null && userTimezoneOffset !== null;
+  document.getElementById('confirmBtn').disabled = !can;
+}
+
+document.getElementById('confirmBtn').addEventListener('click', function() {
+  localStorage.setItem('selectedMode', selectedMode);
+  localStorage.setItem('userTimezoneOffset', userTimezoneOffset);
+  
+  document.getElementById('setupPanel').classList.add('hidden');
+  document.getElementById('mainContent').classList.remove('hidden');
+  
+  const t = TRANSLATIONS[currentLang];
+  
+  if (selectedMode === 'training') {
+    document.getElementById('trainingControls').classList.remove('hidden');
+    document.getElementById('countdownLabel').textContent = t.trainingMode;
+    document.getElementById('countdownDisplay').textContent = t.countdownManual;
+  }
+  
+  const zoneName = document.querySelector('.timezone-btn.selected').dataset[`name-${currentLang}`];
+  const modeText = selectedMode === 'live' ? t.modeLiveText : t.modeTrainingText;
+  document.getElementById('timezoneInfo').textContent = 
+    `📍 ${zoneName} | ${t.modeInfo}: ${modeText}`;
+  
+  timerStarted = true;
+  update();
+});
+
+// Training controls
+document.getElementById('prevPhaseBtn').addEventListener('click', () => {
+  if (trainingPhaseIndex > 0) {
+    trainingPhaseIndex--;
+    updateTrainingPhase();
+  }
+});
+
+document.getElementById('nextPhaseBtn').addEventListener('click', () => {
+  if (trainingPhaseIndex < 5) {
+    trainingPhaseIndex++;
+    updateTrainingPhase();
+  }
+});
+
+document.getElementById('resetTrainingBtn').addEventListener('click', () => {
+  trainingPhaseIndex = 0;
+  updateTrainingPhase();
+});
+
+/***********************
+ * TIME CALCULATIONS
+ ************************/
+function getServerTime() {
+  const now = new Date();
+  const localSeconds = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+  
+  const cetOffset = 1;
+  const hoursFromCET = userTimezoneOffset - cetOffset;
+  const cetSeconds = localSeconds - (hoursFromCET * 3600);
+  const serverSeconds = cetSeconds - (3 * 3600);
+  const normalizedSeconds = ((serverSeconds % 86400) + 86400) % 86400;
+  
+  const hours = Math.floor(normalizedSeconds / 3600);
+  const mins = Math.floor((normalizedSeconds % 3600) / 60);
+  const secs = normalizedSeconds % 60;
+  
+  const serverTime = new Date();
+  serverTime.setHours(hours, mins, secs, 0);
+  
+  return serverTime;
+}
+
+function getWarStartTime() {
+  const now = new Date();
+  const warStart = new Date(now);
+  warStart.setHours(WAR_START_SERVER_HOUR, WAR_START_SERVER_MIN, 0, 0);
+  
+  const cetOffset = 1;
+  const hoursToAdd = 3 + (userTimezoneOffset - cetOffset);
+  warStart.setHours(warStart.getHours() + hoursToAdd);
+  
+  return warStart;
+}
+
+function getActivePhase() {
+  if (selectedMode === 'training') {
+    return trainingPhaseIndex;
+  }
+  
+  const now = new Date();
+  const warStart = getWarStartTime();
+  const diffMin = (now - warStart) / 60000;
+  
+  const phases = [
+    { id: 0, from: -5, to: 0 },
+    { id: 1, from: 0, to: 5 },
+    { id: 2, from: 5, to: 10 },
+    { id: 3, from: 10, to: 15 },
+    { id: 4, from: 15, to: 20 },
+    { id: 5, from: 20, to: 30 }
+  ];
+  
+  const phase = phases.find(p => diffMin >= p.from && diffMin < p.to);
+  return phase ? phase.id : null;
+}
+
+function getPhaseProgress() {
+  if (selectedMode === 'training') return 100;
+  
+  const phaseId = getActivePhase();
+  if (phaseId === null) return 0;
+  
+  const now = new Date();
+  const warStart = getWarStartTime();
+  const diffMin = (now - warStart) / 60000;
+  
+  const phases = [
+    { id: 0, from: -5, to: 0 },
+    { id: 1, from: 0, to: 5 },
+    { id: 2, from: 5, to: 10 },
+    { id: 3, from: 10, to: 15 },
+    { id: 4, from: 15, to: 20 },
+    { id: 5, from: 20, to: 30 }
+  ];
+  
+  const phase = phases.find(p => p.id === phaseId);
+  const elapsed = diffMin - phase.from;
+  const duration = phase.to - phase.from;
+  
+  return Math.min(100, Math.max(0, (elapsed / duration) * 100));
+}
+
+/***********************
+ * TRAINING MODE
+ ************************/
+function updateTrainingPhase() {
+  updatePhaseUI();
+  const t = TRANSLATIONS[currentLang];
+  showNotification(t.phases[trainingPhaseIndex].title, t.phases[trainingPhaseIndex].message.split('\n')[0]);
+}
+
+/***********************
+ * NOTIFICATIONS
+ ************************/
+function requestNotificationPermission() {
+  if (!("Notification" in window)) {
+    alert("This browser doesn't support notifications");
+    return;
+  }
+  
+  Notification.requestPermission().then(permission => {
+    if (permission === "granted") {
+      notificationsEnabled = true;
+      const t = TRANSLATIONS[currentLang];
+      document.getElementById('notificationBox').innerHTML = 
+        `<div class="notification-enabled">${t.notifyEnabled}</div>`;
+      showNotification(t.notifyEnabled, "");
+    }
+  });
+}
+
+function showNotification(title, body) {
+  if (!notificationsEnabled || Notification.permission !== "granted") return;
+  
+  playSound();
+  
+  new Notification(title, {
+    body: body,
+    icon: '🎯',
+    vibrate: [200, 100, 200]
+  });
+}
+
+function initAudio() {
+  if (!audioContext) {
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  }
+}
+
+function playSound() {
+  initAudio();
+  const osc = audioContext.createOscillator();
+  const gain = audioContext.createGain();
+  osc.connect(gain);
+  gain.connect(audioContext.destination);
+  osc.frequency.value = 800;
+  gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+  osc.start(audioContext.currentTime);
+  osc.stop(audioContext.currentTime + 0.3);
+}
+
+/***********************
+ * UPDATE UI
+ ************************/
+function updateClocks() {
+  const now = new Date();
+  const serverTime = getServerTime();
+  
+  document.getElementById('localTime').textContent = 
+    now.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  
+  document.getElementById('serverTime').textContent = 
+    serverTime.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+}
+
+function updateCountdown() {
+  if (selectedMode === 'training') return;
+  
+  const now = new Date();
+  const warStart = getWarStartTime();
+  const diff = warStart - now;
+  
+  const t = TRANSLATIONS[currentLang];
+  const label = document.getElementById("countdownLabel");
+  const display = document.getElementById("countdownDisplay");
+  
+  if (diff > 0) {
+    const hours = Math.floor(diff / 3600000);
+    const mins = Math.floor((diff % 3600000) / 60000);
+    const secs = Math.floor((diff % 60000) / 1000);
+    
+    label.textContent = t.countdownBefore;
+    display.textContent = `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    display.classList.remove('urgent');
+    
+    if (diff < 60000) display.classList.add('urgent');
+  } else if (diff > -30 * 60000) {
+    const elapsed = Math.abs(diff);
+    const mins = Math.floor(elapsed / 60000);
+    const secs = Math.floor((elapsed % 60000) / 1000);
+    
+    label.textContent = t.countdownDuring;
+    display.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    display.classList.remove('urgent');
+  } else {
+    label.textContent = t.countdownAfter;
+    display.textContent = t.victory;
+    display.classList.remove('urgent');
+  }
+}
+
+function updatePhaseUI() {
+  const phaseId = getActivePhase();
+  if (phaseId === null) return;
+  
+  const t = TRANSLATIONS[currentLang];
+  const phase = t.phases[phaseId];
+  
+  if (selectedMode === 'live' && phaseId !== lastPhaseId && lastPhaseId !== -1) {
+    showNotification(phase.title, phase.message.split('\n')[0]);
+  }
+  lastPhaseId = phaseId;
+  
+  const phaseBox = document.getElementById("phaseBox");
+  phaseBox.className = `phase-box phase-${phaseId}`;
+  document.getElementById("phaseTitle").textContent = phase.title;
+  document.getElementById("phaseMessage").textContent = phase.message;
+  
+  const cannonDisplay = document.getElementById("cannonDisplay");
+  cannonDisplay.textContent = phase.cannon;
+  
+  const classes = ['prep', 'nord', 'est', 'sud', 'ovest', 'finale'];
+  cannonDisplay.className = `cannon-display ${classes[phaseId]}`;
+  
+  document.querySelectorAll('.mini-cannon').forEach(c => {
+    c.classList.remove('active', 'completed');
+  });
+  
+  if (phaseId >= 1 && phaseId <= 4) {
+    document.getElementById(`mini${phaseId}`).classList.add('active');
+    for (let i = 1; i < phaseId; i++) {
+      document.getElementById(`mini${i}`).classList.add('completed');
+    }
+  } else if (phaseId === 5) {
+    for (let i = 1; i <= 4; i++) {
+      document.getElementById(`mini${i}`).classList.add('completed');
+    }
+  }
+}
+
+function updateProgressBar() {
+  const progress = getPhaseProgress();
+  const bar = document.getElementById("progressBar");
+  bar.style.width = progress + '%';
+  bar.textContent = Math.round(progress) + '%';
+}
+
+function update() {
+  if (!timerStarted) return;
+  updateClocks();
+  updateCountdown();
+  updatePhaseUI();
+  updateProgressBar();
+}
+
+document.getElementById("enableNotifications").addEventListener("click", requestNotificationPermission);
+
+setInterval(update, 1000);
+console.log("✅ Battle Timer loaded!");
+</script>
+
+</body>
+</html>
